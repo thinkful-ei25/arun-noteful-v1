@@ -2,8 +2,8 @@
   "name": "noteful-app-v1",
   "version": "0.0.1",
   "description": "FullStack App w/ RESTful API Challenge",
-  "license": "MIT",
-  "author": "Chris Klanac",
+  "license": "ISC",
+  "author": "Arun Seehra <seehra.a@gmail.com>",
   "repository": {
     "type": "git"
   },
