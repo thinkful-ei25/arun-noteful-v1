@@ -12,14 +12,7 @@ app.use(express.static('public'));
 app.get('/api/notes', (req, res) => {
   const { searchTerm } = req.query;
   if (searchTerm) {
-    const loweredSearchTerm = searchTerm.toLowerCase();
-    res.json(
-      data.filter(
-        note => note.title.toLowerCase().includes(loweredSearchTerm)
-          || note.content.toLowerCase().includes(loweredSearchTerm),
-      ),
-    );
-
+    res.json(data.filter(note => note.title.includes(searchTerm)));
     return;
   }
 
