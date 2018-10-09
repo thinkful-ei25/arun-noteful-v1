@@ -26,7 +26,10 @@ app.get('/api/notes', (req, res, next) => {
 });
 
 app.get('/api/notes/:id', (req, res) => {
-  res.json(data.find(note => note.id === parseInt(req.params.id, 10)));
+  // simDB does type coercion to number for us
+  notes.find(req.params.id, (err, item) => {
+    res.json(item);
+  });
 });
 
 // eslint-disable-next-line no-unused-vars
