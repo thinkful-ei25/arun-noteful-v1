@@ -1,25 +1,28 @@
 'use strict';
 
 const express = require('express');
+
 const { PORT } = require('./config');
-const { logger } = require('./middleware/logger');
-
-// Load array of notes
 const data = require('./db/notes');
+const { logger } = require('./middleware/logger');
+const simDB = require('./db/simDB');
 
+const notes = simDB.initialize(data);
 const app = express();
 
 app.use(logger);
 app.use(express.static('public'));
 
-app.get('/api/notes', (req, res) => {
+app.get('/api/notes', (req, res, next) => {
   const { searchTerm } = req.query;
-  if (searchTerm) {
-    res.json(data.filter(note => note.title.includes(searchTerm)));
-    return;
-  }
+  notes.filter(searchTerm, (err, result) => {
+    if (err) {
+      next(err);
+      return;
+    }
 
-  res.json(data);
+    res.json(result);
+  });
 });
 
 app.get('/api/notes/:id', (req, res) => {
