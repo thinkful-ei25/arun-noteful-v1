@@ -1,4 +1,5 @@
 /* global $ store api */
+/* eslint-disable */
 'use strict';
 
 const noteful = (function () {
@@ -65,14 +66,25 @@ const noteful = (function () {
     });
   }
 
+  /* eslint-enable */
   function handleNoteFormSubmit() {
-    $('.js-note-edit-form').on('submit', function (event) {
+    $('.js-note-edit-form').on('submit', (event) => {
       event.preventDefault();
 
-      console.log('Submit Note, coming soon...');
+      const editForm = $(event.currentTarget);
+      const noteObj = {
+        title: editForm.find('.js-note-title-entry').val(),
+        content: editForm.find('.js-note-content-entry').val(),
+      };
 
+      noteObj.id = store.currentNote.id;
+      api.update(noteObj.id, noteObj, (updateResponse) => {
+        store.currentNote = updateResponse;
+        render();
+      });
     });
   }
+  /* eslint-disable */
 
   function handleNoteStartNewSubmit() {
     $('.js-start-new-note-form').on('submit', event => {

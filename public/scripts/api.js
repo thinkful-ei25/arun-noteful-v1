@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* global $ */
 'use strict';
 
@@ -20,5 +21,17 @@ const api = {
       url: `/api/notes/${id}`,
       success: callback
     });
-  }
+  },
+
+  /* eslint-enable */
+  update(id, obj, callback) {
+    $.ajax({
+      type: 'PUT',
+      url: `/api/notes/${id}`,
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify(obj),
+      success: callback,
+    });
+  },
 };
