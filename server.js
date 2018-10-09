@@ -51,9 +51,18 @@ app.get('/api/notes', (req, res, next) => {
   });
 });
 
-app.get('/api/notes/:id', (req, res) => {
+app.get('/api/notes/:id', (req, res, next) => {
   // simDB does type coercion to number for us
   notes.find(req.params.id, (err, item) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    if (!item) {
+      next();
+      return;
+    }
+
     res.json(item);
   });
 });
