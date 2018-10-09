@@ -10,8 +10,34 @@ const simDB = require('./db/simDB');
 const notes = simDB.initialize(data);
 const app = express();
 
+// Middleware
 app.use(logger);
 app.use(express.static('public'));
+app.use(express.json());
+
+app.put('/api/notes/:id', (req, res, next) => {
+  const { id } = req.params;
+
+  // Validate user input
+  const updateObject = {};
+  ['title', 'content'].forEach((key) => {
+    updateObject[key] = req.body[key];
+  });
+
+  notes.update(id, updateObject, (err, updatedItem) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    if (!updatedItem) {
+      next();
+      return;
+    }
+
+    res.json(updatedItem);
+  });
+});
 
 app.get('/api/notes', (req, res, next) => {
   const { searchTerm } = req.query;
