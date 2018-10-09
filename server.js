@@ -26,6 +26,22 @@ app.get('/api/notes/:id', (req, res) => {
   res.json(data.find(note => note.id === parseInt(req.params.id, 10)));
 });
 
+// eslint-disable-next-line no-unused-vars
+app.use((req, res, next) => {
+  const err = new Error('Not found');
+  err.status = 404;
+  res.status(err.status).json({ message: 'Not found' });
+});
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  res.status(err.status || 500);
+  res.json({
+    message: err.message,
+    error: err,
+  });
+});
+
 app
   .listen(PORT, function listen() {
     // eslint-disable-next-line no-console
