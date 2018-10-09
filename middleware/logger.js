@@ -4,7 +4,7 @@
 function logger(req, res, next) {
   const now = new Date();
   // eslint-disable-next-line no-console
-  console.log(`${now.toISOString()} ${req.method} ${req.path}`);
+  console.log(`${now.toISOString()} ${req.method} ${req.url}`);
   next();
 }
 
