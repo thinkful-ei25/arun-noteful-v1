@@ -4,10 +4,8 @@ const express = require('express');
 const morgan = require('morgan');
 
 const { PORT } = require('./config');
-const data = require('./db/notes');
-const simDB = require('./db/simDB');
+const notesRouter = require('./router/notes.router.js');
 
-const notes = simDB.initialize(data);
 const app = express();
 
 // Middleware
@@ -15,57 +13,8 @@ app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());
 
-app.put('/api/notes/:id', (req, res, next) => {
-  const { id } = req.params;
 
-  // Validate user input
-  const updateObject = {};
-  ['title', 'content'].forEach((key) => {
-    updateObject[key] = req.body[key];
-  });
-
-  notes.update(id, updateObject, (err, updatedItem) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    if (!updatedItem) {
-      next();
-      return;
-    }
-
-    res.json(updatedItem);
-  });
-});
-
-app.get('/api/notes', (req, res, next) => {
-  const { searchTerm } = req.query;
-  notes.filter(searchTerm, (err, result) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    res.json(result);
-  });
-});
-
-app.get('/api/notes/:id', (req, res, next) => {
-  // simDB does type coercion to number for us
-  notes.find(req.params.id, (err, item) => {
-    if (err) {
-      next(err);
-      return;
-    }
-    if (!item) {
-      next();
-      return;
-    }
-
-    res.json(item);
-  });
-});
+app.use('/api/notes', notesRouter);
 
 // eslint-disable-next-line no-unused-vars
 app.use((req, res, next) => {
