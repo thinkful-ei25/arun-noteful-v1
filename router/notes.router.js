@@ -89,4 +89,18 @@ router.put('/:id', (req, res, next) => {
   });
 });
 
+router.delete('/:id', (req, res, next) => {
+  const { id } = req.params;
+
+  notes.delete(id, (err) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    // HTTP-DELETE is idempotent.
+    res.sendStatus(204);
+  });
+});
+
 module.exports = router;
