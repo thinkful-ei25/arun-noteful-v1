@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* global $ */
 'use strict';
 
@@ -23,15 +22,36 @@ const api = {
     });
   },
 
-  /* eslint-enable */
-  update(id, obj, callback) {
+  update: function (id, obj, callback) {
     $.ajax({
       type: 'PUT',
       url: `/api/notes/${id}`,
       contentType: 'application/json',
       dataType: 'json',
       data: JSON.stringify(obj),
-      success: callback,
+      success: callback
     });
   },
+
+  create: function (obj, callback) {
+    $.ajax({
+      type: 'POST',
+      url: '/api/notes',
+      contentType: 'application/json',
+      dataType: 'json',
+      processData: false,
+      data: JSON.stringify(obj),
+      success: callback
+    });
+  },
+
+  remove: function (id, callback) {
+    return $.ajax({
+      type: 'DELETE',
+      url: `/api/notes/${id}`,
+      dataType: 'json',
+      success: callback
+    });
+  }
+
 };
