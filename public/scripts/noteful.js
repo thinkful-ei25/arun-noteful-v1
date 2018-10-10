@@ -1,6 +1,8 @@
-/* global $ store api */
 'use strict';
 
+/* global store api */
+
+/* eslint-disable */
 const noteful = (function () {
 
   function render() {

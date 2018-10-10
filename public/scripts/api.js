@@ -1,6 +1,6 @@
-/* global $ */
 'use strict';
 
+/* eslint-disable */
 const api = {
 
   search: function (query, callback) {
