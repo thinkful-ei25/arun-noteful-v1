@@ -1,12 +1,10 @@
-// eslint-disable-next-line no-unused-vars
 'use strict';
 
-const store = (function () {
-
+// eslint-disable-next-line no-unused-vars
+const store = (function storeIIFE() {
   return {
     notes: [],
     currentNote: false,
-    currentSearchTerm: ''
+    currentSearchTerm: '',
   };
-
 }());
