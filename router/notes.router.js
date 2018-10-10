@@ -20,6 +20,35 @@ router.get('/', (req, res, next) => {
   });
 });
 
+router.post('/', (req, res, next) => {
+  const { title, content } = req.body;
+  const newItem = { title, content };
+
+  if (!newItem.title) {
+    const err = new Error('Missing `title` in request body');
+    err.status = 400;
+    next(err);
+    return;
+  }
+
+  notes.create(newItem, (err, item) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    if (!item) {
+      next();
+      return;
+    }
+
+    res
+      .location(`${req.protocol}://${req.headers.host}${req.baseUrl}/${item.id}`)
+      .status(201)
+      .json(item);
+  });
+});
+
 router.get('/:id', (req, res, next) => {
   // simDB does type coercion to number for us
   notes.find(req.params.id, (err, item) => {
