@@ -1,17 +1,17 @@
 'use strict';
 
 const express = require('express');
+const morgan = require('morgan');
 
 const { PORT } = require('./config');
 const data = require('./db/notes');
-const { logger } = require('./middleware/logger');
 const simDB = require('./db/simDB');
 
 const notes = simDB.initialize(data);
 const app = express();
 
 // Middleware
-app.use(logger);
+app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());
 
