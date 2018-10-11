@@ -10,14 +10,10 @@ const notes = simDB.initialize(data);
 
 router.get('/', (req, res, next) => {
   const { searchTerm } = req.query;
-  notes.filter(searchTerm, (err, result) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    res.json(result);
-  });
+  notes
+    .filter(searchTerm)
+    .then(res.json.bind(res))
+    .catch(next);
 });
 
 router.post('/', (req, res, next) => {
@@ -31,38 +27,35 @@ router.post('/', (req, res, next) => {
     return;
   }
 
-  notes.create(newItem, (err, item) => {
-    if (err) {
-      next(err);
-      return;
-    }
+  notes
+    .create(newItem)
+    .then((item) => {
+      if (!item) {
+        next();
+        return;
+      }
 
-    if (!item) {
-      next();
-      return;
-    }
-
-    res
-      .location(`${req.protocol}://${req.headers.host}${req.baseUrl}/${item.id}`)
-      .status(201)
-      .json(item);
-  });
+      res
+        .location(`${req.protocol}://${req.headers.host}${req.baseUrl}/${item.id}`)
+        .status(201)
+        .json(item);
+    })
+    .catch(next);
 });
 
 router.get('/:id', (req, res, next) => {
   // simDB does type coercion to number for us
-  notes.find(req.params.id, (err, item) => {
-    if (err) {
-      next(err);
-      return;
-    }
-    if (!item) {
-      next();
-      return;
-    }
+  notes
+    .find(req.params.id)
+    .then((item) => {
+      if (!item) {
+        next();
+        return;
+      }
 
-    res.json(item);
-  });
+      res.json(item);
+    })
+    .catch(next);
 });
 
 router.put('/:id', (req, res, next) => {
@@ -87,20 +80,27 @@ router.put('/:id', (req, res, next) => {
 
     res.json(updatedItem);
   });
+
+  notes
+    .update(id, updateObject)
+    .then((item) => {
+      if (!item) {
+        next();
+        return;
+      }
+
+      res.json(item);
+    })
+    .catch(next);
 });
 
 router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
 
-  notes.delete(id, (err) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    // HTTP-DELETE is idempotent.
-    res.sendStatus(204);
-  });
+  notes
+    .delete(id)
+    .then(() => res.sendStatus(204))
+    .catch(next);
 });
 
 module.exports = router;
