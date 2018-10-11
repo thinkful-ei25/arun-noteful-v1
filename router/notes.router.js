@@ -8,6 +8,11 @@ const simDB = require('../db/simDB');
 const router = express.Router();
 const notes = simDB.initialize(data);
 
+
+function rejectIfFalsy(obj) {
+  return obj || Promise.reject();
+}
+
 router.get('/', (req, res, next) => {
   const { searchTerm } = req.query;
   notes
@@ -29,12 +34,8 @@ router.post('/', (req, res, next) => {
 
   notes
     .create(newItem)
+    .then(rejectIfFalsy)
     .then((item) => {
-      if (!item) {
-        next();
-        return;
-      }
-
       res
         .location(`${req.protocol}://${req.headers.host}${req.baseUrl}/${item.id}`)
         .status(201)
@@ -47,14 +48,8 @@ router.get('/:id', (req, res, next) => {
   // simDB does type coercion to number for us
   notes
     .find(req.params.id)
-    .then((item) => {
-      if (!item) {
-        next();
-        return;
-      }
-
-      res.json(item);
-    })
+    .then(rejectIfFalsy)
+    .then(res.json.bind(res))
     .catch(next);
 });
 
@@ -67,30 +62,10 @@ router.put('/:id', (req, res, next) => {
     updateObject[key] = req.body[key];
   });
 
-  notes.update(id, updateObject, (err, updatedItem) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    if (!updatedItem) {
-      next();
-      return;
-    }
-
-    res.json(updatedItem);
-  });
-
   notes
     .update(id, updateObject)
-    .then((item) => {
-      if (!item) {
-        next();
-        return;
-      }
-
-      res.json(item);
-    })
+    .then(rejectIfFalsy)
+    .then(res.json.bind(res))
     .catch(next);
 });
 
