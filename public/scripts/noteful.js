@@ -35,6 +35,15 @@ const noteful = (function () {
     return id;
   }
 
+  function searchThenRender() {
+    return api
+      .search(store.currentSearchTerm)
+      .then((searchResponse) => {
+        store.notes = searchResponse;
+        render();
+      });
+  }
+
   /**
    * EVENT LISTENERS AND HANDLERS
    */
@@ -88,23 +97,15 @@ const noteful = (function () {
           .update(store.currentNote.id, noteObj)
           .then((updateResponse) => {
             store.currentNote = updateResponse;
-            return api.search(store.currentSearchTerm);
           })
-          .then((searchResponse) => {
-            store.notes = searchResponse;
-            render();
-          });
+          .then(searchThenRender);
       } else {
         api
           .create(noteObj)
           .then((createResponse) => {
             store.currentNote = createResponse;
-            return api.search(store.currentSearchTerm)
           })
-          .then((searchResponse) => {
-            store.notes = searchResponse;
-            render();
-          })
+          .then(searchThenRender);
       }
 
     });
@@ -126,17 +127,14 @@ const noteful = (function () {
 
       const noteId = getNoteIdFromElement(event.currentTarget);
 
-      api.remove(noteId, () => {
-
-        api.search(store.currentSearchTerm, searchResponse => {
-          store.notes = searchResponse;
-          if (noteId === store.currentNote.id) {
+      api
+        .remove(noteId)
+        .then(() => {
+          if (store.currentNote.id === noteId) {
             store.currentNote = {};
           }
-          render();
-        });
-
-      });
+        })
+        .then(searchThenRender);
     });
   }
 
