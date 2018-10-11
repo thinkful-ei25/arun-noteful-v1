@@ -8,16 +8,17 @@ const simDB = require('../db/simDB');
 const router = express.Router();
 const notes = simDB.initialize(data);
 
+
+function rejectIfFalsy(obj) {
+  return obj || Promise.reject();
+}
+
 router.get('/', (req, res, next) => {
   const { searchTerm } = req.query;
-  notes.filter(searchTerm, (err, result) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    res.json(result);
-  });
+  notes
+    .filter(searchTerm)
+    .then(res.json.bind(res))
+    .catch(next);
 });
 
 router.post('/', (req, res, next) => {
@@ -31,38 +32,25 @@ router.post('/', (req, res, next) => {
     return;
   }
 
-  notes.create(newItem, (err, item) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    if (!item) {
-      next();
-      return;
-    }
-
-    res
-      .location(`${req.protocol}://${req.headers.host}${req.baseUrl}/${item.id}`)
-      .status(201)
-      .json(item);
-  });
+  notes
+    .create(newItem)
+    .then(rejectIfFalsy)
+    .then((item) => {
+      res
+        .location(`${req.protocol}://${req.headers.host}${req.baseUrl}/${item.id}`)
+        .status(201)
+        .json(item);
+    })
+    .catch(next);
 });
 
 router.get('/:id', (req, res, next) => {
   // simDB does type coercion to number for us
-  notes.find(req.params.id, (err, item) => {
-    if (err) {
-      next(err);
-      return;
-    }
-    if (!item) {
-      next();
-      return;
-    }
-
-    res.json(item);
-  });
+  notes
+    .find(req.params.id)
+    .then(rejectIfFalsy)
+    .then(res.json.bind(res))
+    .catch(next);
 });
 
 router.put('/:id', (req, res, next) => {
@@ -74,33 +62,20 @@ router.put('/:id', (req, res, next) => {
     updateObject[key] = req.body[key];
   });
 
-  notes.update(id, updateObject, (err, updatedItem) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    if (!updatedItem) {
-      next();
-      return;
-    }
-
-    res.json(updatedItem);
-  });
+  notes
+    .update(id, updateObject)
+    .then(rejectIfFalsy)
+    .then(res.json.bind(res))
+    .catch(next);
 });
 
 router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
 
-  notes.delete(id, (err) => {
-    if (err) {
-      next(err);
-      return;
-    }
-
-    // HTTP-DELETE is idempotent.
-    res.sendStatus(204);
-  });
+  notes
+    .delete(id)
+    .then(() => res.sendStatus(204))
+    .catch(next);
 });
 
 module.exports = router;
