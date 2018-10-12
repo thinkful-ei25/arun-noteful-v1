@@ -32,10 +32,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-app
-  .listen(PORT, function listen() {
+if (require.main === module) {
+  app
+    .listen(PORT, function listen() {
+      // eslint-disable-next-line no-console
+      console.info(`Server listening on ${this.address().port}`);
+    })
     // eslint-disable-next-line no-console
-    console.info(`Server listening on ${this.address().port}`);
-  })
-  // eslint-disable-next-line no-console
-  .on('error', err => console.error(err));
+    .on('error', err => console.error(err));
+}
+
+module.exports = app;
