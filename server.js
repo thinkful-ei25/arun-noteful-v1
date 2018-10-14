@@ -9,7 +9,9 @@ const notesRouter = require('./router/notes.router.js');
 const app = express();
 
 // Middleware
-app.use(morgan('dev'));
+if (!process.env.NODE_ENV === 'test') {
+  app.use(morgan('dev'));
+}
 app.use(express.static('public'));
 app.use(express.json());
 
