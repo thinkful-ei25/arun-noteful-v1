@@ -80,3 +80,44 @@ describe('GET "/api/notes"', function () {
     });
   });
 });
+
+describe('GET /api/:id', function () {
+  context('with valid id', function () {
+    it('should return a note object with {id, title, content}', function () {
+      return chai
+        .request(app)
+        .get('/api/notes/1000')
+        .then((res) => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.all.keys('id', 'title', 'content');
+        });
+    });
+
+    it('should return a note object with the correct id', function () {
+      return chai
+        .request(app)
+        .get('/api/notes/1000')
+        .then((res) => {
+          expect(res.body.id).to.equal(1000);
+        });
+    });
+  });
+
+  context('with invalid id', function () {
+    it('should respond with HTTP Status: 404', function () {
+      function testFor404(res) {
+        expect(res).to.have.status(404);
+        expect(res).to.not.have.key('body');
+      }
+
+      return chai
+        .request(app)
+        .get('/api/notes/NaN')
+        .then(testFor404)
+        .then(() => chai.request(app).get('/api/notes/2000'))
+        .then(testFor404);
+    });
+  });
+});
