@@ -6,7 +6,7 @@ const chai = require('chai');
 
 const app = require('../server');
 const simDB = require('../db/simDB');
-const notesObject = require('../db/notes');
+const notesData = require('../db/notes');
 
 const { expect } = chai;
 chai.use(require('chai-http'));
@@ -140,7 +140,7 @@ describe('POST /api/notes', function () {
 
     afterEach(function () {
       this.agent.close();
-      simDB.initialize(notesObject);
+      simDB.initialize(notesData);
     });
 
     it('should create and return a new item', function () {
@@ -185,5 +185,63 @@ describe('POST /api/notes', function () {
           expect(res.body.message).to.equal('Missing `title` in request body');
         });
     });
+  });
+});
+
+describe('PUT /api/notes/:id', function () {
+  after(function () {
+    simDB.initialize(notesData);
+  });
+
+  context('with valid data', function () {
+    it('should update and return a note object', function () {
+      const noteFixture = { id: 1005, title: 'Rabbits > Cats', content: "It's true" };
+      return chai
+        .request(app)
+        .put(`/api/notes/${noteFixture.id}`)
+        .send(noteFixture)
+        .then((res) => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.deep.equal(noteFixture);
+        });
+    });
+  });
+
+  context('with invalid data', function () {
+    it('should return HTTP Status: 404 for an invalid id', function () {
+      const noteFixture = { title: 'Rabbits > Cats', content: "It's true" };
+      const agent = chai.request(app).keepOpen();
+      return agent
+        .put('/api/notes/NaN')
+        .send(noteFixture)
+        .then((res) => {
+          expect(res).to.have.status(404);
+        })
+        .then(() => agent.put('/api/notes/2000').send(noteFixture))
+        .then((res) => {
+          expect(res).to.have.status(404);
+        })
+        .finally(() => agent.close());
+    });
+
+    it(
+      'should return an object with the correct message field'
+        + 'when sent a note with a title field',
+      function () {
+        const noteFixture = { content: 'Haha' };
+        return chai
+          .request(app)
+          .put('/api/notes/1000')
+          .send(noteFixture)
+          .then((res) => {
+            expect(res).to.be.status(400);
+            expect(res).to.be.json;
+            expect(res.body).to.be.an('object');
+            expect(res.body.message).to.equal('Missing `title` in request body');
+          });
+      },
+    );
   });
 });
