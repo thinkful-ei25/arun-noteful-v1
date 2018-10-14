@@ -245,3 +245,30 @@ describe('PUT /api/notes/:id', function () {
     );
   });
 });
+
+describe('DELETE /api/notes/:id', function () {
+  beforeEach(function () {
+    this.agent = chai.request(app).keepOpen();
+  });
+
+  afterEach(function () {
+    this.agent.close();
+    simDB.initialize(notesData);
+  });
+
+  it('should delete the item corresponding to the ID', function () {
+    return this.agent
+      .delete('/api/notes/1000')
+      .then(res => expect(res).to.have.status(204))
+      .then(() => this.agent.get('/api/notes/1000'))
+      .then(res => expect(res).to.have.status(404));
+  });
+
+  it('should be idempotent', function () {
+    return this.agent
+      .delete('/api/notes/1000')
+      .then(res => expect(res).to.have.status(204))
+      .then(() => this.agent.delete('/api/notes/1000'))
+      .then(res => expect(res).to.have.status(204));
+  });
+});
