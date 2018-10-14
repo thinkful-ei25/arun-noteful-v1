@@ -3,6 +3,20 @@ extends: airbnb-base
 env:
   browser: true
   jquery: true
+  mocha: true
+
+rules:
+  max-len:
+    - warn
+    - code: 88
+      tabWidth: 2
 
 parserOptions:
   sourceType: script
+
+overrides:
+  - files: ['*.test.js']
+    rules:
+      no-unused-expressions: off
+      func-names: off
+      prefer-arrow-callback: off

@@ -9,7 +9,9 @@ const notesRouter = require('./router/notes.router.js');
 const app = express();
 
 // Middleware
-app.use(morgan('dev'));
+if (!process.env.NODE_ENV === 'test') {
+  app.use(morgan('dev'));
+}
 app.use(express.static('public'));
 app.use(express.json());
 
@@ -32,10 +34,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-app
-  .listen(PORT, function listen() {
+if (require.main === module) {
+  app
+    .listen(PORT, function listen() {
+      // eslint-disable-next-line no-console
+      console.info(`Server listening on ${this.address().port}`);
+    })
     // eslint-disable-next-line no-console
-    console.info(`Server listening on ${this.address().port}`);
-  })
-  // eslint-disable-next-line no-console
-  .on('error', err => console.error(err));
+    .on('error', err => console.error(err));
+}
+
+module.exports = app;

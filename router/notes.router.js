@@ -62,6 +62,13 @@ router.put('/:id', (req, res, next) => {
     updateObject[key] = req.body[key];
   });
 
+  if (!updateObject.title) {
+    const err = new Error('Missing `title` in request body');
+    err.status = 400;
+    next(err);
+    return;
+  }
+
   notes
     .update(id, updateObject)
     .then(rejectIfFalsy)
