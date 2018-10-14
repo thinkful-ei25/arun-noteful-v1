@@ -5,6 +5,8 @@ const { URL } = require('url');
 const chai = require('chai');
 
 const app = require('../server');
+const simDB = require('../db/simDB');
+const notesObject = require('../db/notes');
 
 const { expect } = chai;
 chai.use(require('chai-http'));
@@ -132,11 +134,13 @@ describe('POST /api/notes', function () {
         title: 'Rabbits > Cats',
         content: 'Everyone knows this',
       };
+
       this.agent = chai.request(app).keepOpen();
     });
 
     afterEach(function () {
       this.agent.close();
+      simDB.initialize(notesObject);
     });
 
     it('should create and return a new item', function () {
@@ -162,13 +166,7 @@ describe('POST /api/notes', function () {
         .then(() => this.agent.get(location.pathname))
         .then((res) => {
           expect(res).to.have.status(200);
-          /**
-           * Because of the caching behavior of require, simDB will actually not be
-           * cleared between calls. The fix would be to load simDB earlier (in app.js)
-           * and pass that instance further down the call chain. Then we could use the
-           * .on('close') listener to clean up before our tests.
-           */
-          expect(res.body).to.deep.equal(Object.assign(this.noteFixture, { id: 1011 }));
+          expect(res.body).to.deep.equal(this.noteFixture);
         });
     });
   });
